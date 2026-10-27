@@ -25,13 +25,21 @@ export async function GET(req: Request) {
       }
       db = `ok ${times.join("/")}ms`;
     } catch (err) {
-      // 비밀번호 오류 등은 코드만 보여 준다(접속 주소는 담지 않는다)
-      db = `error ${(err as { code?: string }).code ?? "unknown"}`;
+      // 오류 코드와 메시지만 보여 준다. 메시지 속 사용자 이름은 가린다(비밀번호는 메시지에 없다)
+      const e = err as { code?: string; message?: string };
+      const message = (e.message ?? "").replace(/postgres\.[a-z0-9]+/gi, "postgres.<ref>").slice(0, 120);
+      db = `error ${e.code ?? "unknown"}: ${message}`;
     }
   }
+  // 접속하려는 서버 이름과 사용자 이름 형태(비밀값 아님)
+  const target = process.env.DATABASE_URL?.match(/^postgres(?:ql)?:\/\/([^:]+):[^@]*@([^:/]+):(\d+)/);
+  const dbTarget = target
+    ? { host: target[2], port: target[3], userLooksLikeExample: target[1] === "postgres.abcdefgh" }
+    : null;
   return NextResponse.json({
     env,
     db,
+    dbTarget,
     region: process.env.VERCEL_REGION ?? "local",
     deployment: {
       vercelEnv: process.env.VERCEL_ENV ?? null,
