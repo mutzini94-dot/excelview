@@ -68,6 +68,9 @@ export function createMemoryRepo(): ShowRepo {
       }
       return null;
     },
+    async getMemberSecret(memberId) {
+      return must(memberSecrets.get(memberId), "member");
+    },
     async createMember(showId, displayName) {
       showOf(showId);
       const member: Member = {

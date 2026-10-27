@@ -122,6 +122,10 @@ export function createSupabaseRepo(db: SupabaseClient = createSupabaseClient()):
       const row = res.data as Row;
       return secretsEqual(secret, row.secret as string) ? toMember(row) : null;
     },
+    async getMemberSecret(memberId) {
+      const row = check(await db.from("members").select("secret").eq("id", memberId).maybeSingle(), "member") as Row;
+      return row.secret as string;
+    },
     async createMember(showId, displayName) {
       const secret = newSecret();
       // joined_order 충돌(동시 등록) 시 몇 번 다시 시도한다

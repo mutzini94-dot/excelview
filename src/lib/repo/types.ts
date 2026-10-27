@@ -20,6 +20,7 @@ export interface ShowRepo {
   getSecrets(showId: string): Promise<ShowSecrets>;
   rotateSecret(showId: string, kind: keyof ShowSecrets): Promise<string>;
   findMemberBySecret(showId: string, secret: string): Promise<Member | null>;
+  getMemberSecret(memberId: string): Promise<string>;
   createMember(showId: string, displayName: string): Promise<{ member: Member; secret: string }>;
   listMembers(showId: string): Promise<Member[]>;
   updateMember(memberId: string, patch: MemberPatch): Promise<Member>;

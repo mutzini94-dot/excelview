@@ -35,6 +35,14 @@ export function repoContract(make: () => ShowRepo) {
     expect((await repo.listMembers(show.id)).map((m) => m.displayName)).toEqual(["방장", "멤버A"]);
   });
   
+  test("getMemberSecret은 멤버의 개인 비밀값을 돌려준다", async () => {
+    const repo = make();
+    const { show, hostMember, hostMemberSecret } = await repo.createShow({ name: "쇼", mode: "excel", hostName: "방장" });
+    expect(await repo.getMemberSecret(hostMember.id)).toBe(hostMemberSecret);
+    const { member, secret } = await repo.createMember(show.id, "A");
+    expect(await repo.getMemberSecret(member.id)).toBe(secret);
+  });
+
   test("회차는 현재 시즌 안에서 번호가 오르고, 종료 후 currentEpisodeId가 비워진다", async () => {
     const repo = make();
     const { show } = await repo.createShow({ name: "쇼", mode: "excel", hostName: "방장" });
