@@ -18,5 +18,16 @@ export async function GET() {
       db = "error";
     }
   }
-  return NextResponse.json({ env, db, region: process.env.VERCEL_REGION ?? "local" });
+  return NextResponse.json({
+    env,
+    db,
+    region: process.env.VERCEL_REGION ?? "local",
+    // 어느 배포가 응답하는지 확인용(값이 아닌 배포 정보만)
+    deployment: {
+      vercelEnv: process.env.VERCEL_ENV ?? null,
+      commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null,
+      branch: process.env.VERCEL_GIT_COMMIT_REF ?? null,
+      envCount: Object.keys(process.env).length,
+    },
+  });
 }
