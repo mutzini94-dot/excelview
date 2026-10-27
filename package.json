@@ -8,15 +8,15 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:db": "node -e \"process.env.RUN_DB_TESTS=1;require('child_process').execSync('npx vitest run tests/lib/repo/supabase.test.ts --testTimeout=60000',{stdio:'inherit',env:process.env})\""
+    "test:db": "node -e \"process.env.RUN_DB_TESTS=1;require('child_process').execSync('npx vitest run tests/lib/repo/postgres.test.ts --testTimeout=60000',{stdio:'inherit',env:process.env})\""
   },
   "dependencies": {
     "@livekit/components-react": "^2.9.24",
     "@livekit/components-styles": "^1.2.0",
-    "@supabase/supabase-js": "^2.118.0",
     "livekit-client": "^2.23.0",
     "livekit-server-sdk": "^2.19.2",
     "next": "15.5.28",
+    "postgres": "^3.4.9",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "server-only": "^0.0.1"
