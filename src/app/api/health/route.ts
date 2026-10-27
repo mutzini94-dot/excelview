@@ -6,16 +6,24 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** 배포 점검용: 환경변수 상태와 DB 연결 여부만 보여 준다 */
-export async function GET() {
+export async function GET(req: Request) {
   const env = checkEnv(process.env);
+  // ?probe=5 → 같은 연결로 5번 연속 조회한 각각의 시간(첫 연결 비용과 평소 왕복을 구분)
+  const probe = Math.min(10, Math.max(1, Number(new URL(req.url).searchParams.get("probe")) || 1));
   let db = "skipped";
   if (env.SUPABASE_URL === "ok" && env.SUPABASE_SERVICE_ROLE_KEY === "ok") {
-    const started = Date.now();
     try {
-      const res = await createSupabaseClient().from("shows").select("id", { head: true, count: "exact" });
-      db = res.error ? `error ${res.status}` : `ok ${Date.now() - started}ms`;
-    } catch {
-      db = "error";
+      const client = createSupabaseClient();
+      const times: number[] = [];
+      for (let i = 0; i < probe; i++) {
+        const started = Date.now();
+        const res = await client.from("shows").select("id").limit(1);
+        if (res.error) throw new Error(`error ${res.status}`);
+        times.push(Date.now() - started);
+      }
+      db = `ok ${times.join("/")}ms`;
+    } catch (err) {
+      db = err instanceof Error && err.message.startsWith("error") ? err.message : "error";
     }
   }
   return NextResponse.json({
